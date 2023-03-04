@@ -24,6 +24,9 @@ class DataType():
             return False # skip the field
         return True
 
+    def __str__(self):
+        return "DataType(field_key='%s', field_value=%s, data_type=%s)" % (self.field_key, self.field_value, self.data_type)
+
 
 class NumericDataType(DataType):
 
@@ -40,9 +43,11 @@ class NumericDataType(DataType):
         if self.field_value.startswith("0"):
             new_string = self.field_value.lstrip("0")
             return new_string
-        return self.field_value
+        return self.field_value 
 
-
+    def __str__(self):
+        return "NumericDataType(field_key='%s', field_value=%s, data_type=%s)" % \
+        (self.field_key, self.field_value, self.data_type)
 
 class StringDataType(DataType):
     def __init__(self, field_key: str = 0, field_value: str = "", data_type: str = "") -> None:
@@ -66,6 +71,10 @@ class StringDataType(DataType):
         except ValueError:
             print(f"{self.field_value} is not RFC3339 timestamp")
 
+    def __str__(self):
+        return "StringDataType(field_key='%s', field_value=%s, data_type=%s)" % \
+        (self.field_key, self.field_value, self.data_type)
+
 
 class BoolDataType(DataType):
     def __init__(self, field_key: str = 0, field_value: str = "", data_type: str = "") -> None:
@@ -81,6 +90,10 @@ class BoolDataType(DataType):
             self.invalid = False
         else:
             self.invalid = True
+    
+    def __str__(self):
+        return "BoolDataType(field_key='%s', field_value=%s, data_type=%s)" % \
+        (self.field_key, self.field_value, self.data_type)
 
 
 class NullDataType(DataType):
@@ -94,6 +107,10 @@ class NullDataType(DataType):
         elif self.field_value in ["0", "f", "F", "FALSE", "false", "False"]:
             self.invalid = True
 
+    def __str__(self):
+        return "NullDataType(field_key='%s', field_value=%s, data_type=%s)" % \
+        (self.field_key, self.field_value, self.data_type)
+
 
 # class ListDataType():
 #     ListField = namedtuple(
@@ -103,6 +120,9 @@ class NullDataType(DataType):
 # class MapDataType():
 #     MapField = namedtuple('MapField', ['json_key', 'data_type', 'data_value'])
 
+
+def strip_trailing_leading_space(datatype):
+    datatype.strip_trailing_leading_space()
 
 class Transformation():
 
@@ -127,7 +147,17 @@ class Transformation():
             f.close()
 
     def transform_data(self):
-        print(self.datatype_dict)
+        for k, v in self.datatype_dict.items():
+
+            print(f"val: {v}")
+            n = NullDataType(k, self.datatype_dict[k].keys(), self.datatype_dict[k].values())
+            if isinstance(n, NumericDataType):
+                print(f"{NumericDataType()}")
+            else:
+                print(f"It's not")
+
+            #str_field = StringDataType(k, v.item[0], v.item[1])
+            print(self.datatype_dict[k])
 
     def write_file(self):
 
@@ -153,10 +183,10 @@ def main() -> None:
         sys.exit(1)
 
     json_file = sys.argv[1].strip()
-    d = DataType(json_file)
+    d = Transformation(json_file)
     d.read_file()
     d.transform_data()
-    d.write_file()
+    #d.write_file()
 
 
 if __name__ == '__main__':
